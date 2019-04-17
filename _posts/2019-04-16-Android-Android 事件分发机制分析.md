@@ -1,3 +1,15 @@
+---
+layout:     post
+title:      Android 事件分发机制分析
+date:       2019-04-16
+author:     guuguo
+catalog: true
+tags:
+    - Android
+    - View System
+---
+
+
 # Android 事件分发机制分析
 
 ## 前言
