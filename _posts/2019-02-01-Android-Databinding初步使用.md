@@ -44,14 +44,11 @@ kapt "com.android.databinding:compiler:${ANDROID_PLUGIN_VERSION}"
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
     <data>
-
        <!--实体-->
        <variable
             name="bean"
             type="com.bianla.dataserviceslibrary.domain.ModulesBean" />
-
        <!--类引用--> <import type="android.view.View" />
     </data>
     <!--布局文件...-->
@@ -62,13 +59,9 @@ kapt "com.android.databinding:compiler:${ANDROID_PLUGIN_VERSION}"
 
 ```java
 android:visibility="@{bean.getFatReportVisible()}" //bean中简单处理一些相关逻辑
-
 android:visibility="@{bean.isVisible?View.VISIBLE:View.GONE}" //三目运算符判断
-
 android:onClick="@{viewModel::onMoreRecommendStarClick}" //点击事件
-
 android:text="@{viewModel.hotSearchStr}" //字符串表示
-
 android:text="@{bean.clickCount+@string/community_play_times}" //10次播放(中文直接+再后面 windows 编译报错, linux 和 mac 正常。需要使用 @string 资源方式)
 ```
 
