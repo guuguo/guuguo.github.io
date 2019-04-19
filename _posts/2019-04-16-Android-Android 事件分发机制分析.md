@@ -70,7 +70,7 @@
 
 通过增加打印日志，分别在下列方法开始执行的时候打印出相关文字，对流程进行简单的分析判断
 
-- Activity
+-·Activity
 
     > 1. dispatchTouchEvent
     > 2. onTouchEvent
