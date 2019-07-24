@@ -238,14 +238,14 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
        
         // Check for interception.
         final boolean intercepted;
-      	///是down事件 或者有手指在触摸状态了 意思是
+      	///是down事件 或者有手指在触摸状态了，筛选掉异常状态，没有手指触摸的非按下事件
         if (actionMasked == MotionEvent.ACTION_DOWN
                 || mFirstTouchTarget != null) {
             final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
             if (!disallowIntercept) {
               	/// 执行onInterceptTouchEvent代码，判断是否拦截事件，给intercepted 赋值
                 intercepted = onInterceptTouchEvent(ev);
-                ev.setAction(action); // restore action in case it was changed
+                ev.setAction(action); // restore action in case it was changed //可能之前被包装成cancel事件传递取消之前的时间
             } else {
                 intercepted = false;
             }

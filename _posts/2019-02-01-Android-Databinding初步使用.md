@@ -25,11 +25,15 @@ android {
 }
 ```
 
-- apply `kapt` 插件 `apply plugin: 'kotlin-kapt'`
-- `dependencies` 内添加依赖
+apply `kapt` 插件 `apply plugin: 'kotlin-kapt'`
+
+`dependencies` 内添加依赖
 
 ```groovy
 kapt "com.android.databinding:compiler:${ANDROID_PLUGIN_VERSION}"
+
+//ViewModel & liveData  结合LiveData使用
+api "android.arch.lifecycle:extensions:${LIFECYCLE_VERSION}"
 ```
 
 `ANDROID_PLUGIN_VERSION` 为 `com.android.tools.build:gradle`同样的版本号
@@ -114,7 +118,7 @@ object ViewBindingAdapter {
 }
 ```
 
-#### 3.MVVM
+#### 3.MVVM 结合 LiveData 使用
 
 > **View: **对应于 Activity 和 xml ，负责 View 的绘制以及与用户交互
 >
@@ -122,79 +126,40 @@ object ViewBindingAdapter {
 >
 > **ViewModel: **负责完成 View 于 Model 间的交互,负责业务逻辑
 
-###### 我的项目架构
+在`viewmodel `中使用jetpack工具 `MutableLiveData`进行状态管理。自动绑定生命周期等。
 
-> IView
 
-```kotlin
-interface IView<E> : LifecycleProvider<E> {
-    fun loadData()
-
-    fun dialogLoadingShow(msg: String, canTouchCancel: Boolean = false, maxDelay: Long = 0, listener: DialogInterface.OnDismissListener? = null)
-
-    fun dialogErrorShow(msg: String, listener: DialogInterface.OnDismissListener? = null, delayTime: Int = 1500)
-
-    fun dialogCompleteShow(msg: String, listener: DialogInterface.OnDismissListener? = null, delayTime: Int = 800)
-
-    fun dialogMsgShow(msg: String, btnText: String, listener: (() -> Unit)?): WarningDialog?
-
-    fun dialogWarningShow(msg: String, cancelStr: String, confirmStr: String, listener: (() -> Unit)? = null): WarningDialog?
-
-    fun showDialogOnMain(dialog: Dialog)
-
-    fun dialogDismiss()
-
-    var activity: LBaseActivitySupport
-}
-```
 
 > BaseViewModel
 
 ```kotlin
-open class BaseViewModel(view: IView<*>?=null) : BaseObservable() {
+open class BaseViewModel : ViewModel() {
 
-    var showLoading: (msg: String) -> Unit = { msg -> view?.dialogLoadingShow(msg) }
-    var hideLoading: () -> Unit = { view?.dialogDismiss() }
-    var showErrorMsg: (msg: String) -> Unit = { msg -> view?.dialogErrorShow(msg) }
-    var showComplete: (msg: String) -> Unit = { msg -> view?.dialogCompleteShow(msg) }
-    fun getVisibility(bool: Boolean): Int {
-        return if (bool)
-            View.VISIBLE
-        else View.GONE
-    }
+    var isError = MutableLiveData<Throwable>()
+    var isEmpty = MutableLiveData<Boolean>()
+    var isLoading = MutableLiveData<Boolean>()
+
 }
+
+
 ```
 
-> ViewModel
+在 `activity` 或者`Fragment`中 实例化 `binding`实例后 设置`lifecycleOwner` 生命周期宿主
 
 ```kotlin
-class CommunityDataViewModel(var view: IView<*>) : BaseViewModel(view) {
-    val activity = view.activity
-    var setUpRecommendList: (list: ResRecommendList) -> Unit = { }
-    var setUpThemeData: (list: HomeThemesBean) -> Unit = { }
-    var setUpCommunityDataList: (data: Pair<ResRecommendList, Int>) -> Unit = {}
-
-    var loadMoreFaild: () -> Unit = { }
-
-    fun getRecommendList(page: Int, noCache: Boolean = false) =
-            CApiServer.getRecommendList(page)
-                    .compose(NetTransform())
-                    .compose(ACacheTransform<BaseEntity<ResRecommendList>>("RecommendList$page").also { if (noCache) it.noCache() else it.fromCacheAndNet() })
-}
+binding = DataBindingUtil.inflate(inflater!!, resId, container, false)
+binding.lifecycleOwner = this
 ```
 
-> java 方式观察者
+除了xml视图界面会跟着数据自动改变之外，还可以在 代码中监听livedata数据的变更
 
-```java
-mainViewModel.isShowDialog.addOnPropertyChangedCallback(new android.databinding.Observable.OnPropertyChangedCallback() {
-      @Override
-      public void onPropertyChanged(android.databinding.Observable sender, int propertyId) {
-          if (mainViewModel.isShowDialog.get()) {
-               dialog.show();
-          } else {
-               dialog.dismiss();
-          }
-       }
-    });
- }
+
+
+> Ui
+
+```kotlin
+ viewModel.isLoading.observe(this, Observer {
+          if(it==true)	showLoading()
+   				else hiseLoading()
+ })
 ```
