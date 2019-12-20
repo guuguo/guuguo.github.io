@@ -61,11 +61,14 @@ api "android.arch.lifecycle:extensions:${LIFECYCLE_VERSION}"
 
 - 布局使用
 
-```java
+```xml
 android:visibility="@{bean.getFatReportVisible()}" //bean中简单处理一些相关逻辑
 android:visibility="@{bean.isVisible?View.VISIBLE:View.GONE}" //三目运算符判断
 android:onClick="@{viewModel::onMoreRecommendStarClick}" //点击事件
 android:text="@{viewModel.hotSearchStr}" //字符串表示
+android:text="@{@string/int_value(rateInfo.averageRate)}"   
+//<string name="int_value">%1$d</string>
+
 android:text="@{bean.clickCount+@string/community_play_times}" //10次播放(中文直接+再后面 windows 编译报错, linux 和 mac 正常。需要使用 @string 资源方式)
 ```
 
